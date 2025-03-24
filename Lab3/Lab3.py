@@ -16,9 +16,22 @@ from scipy.io import wavfile
  The audio file should be loaded using the standard file selection dialog. 
  It is recommended to use recordings of individual words. '''
  
+# Path to wav files
+unvoiced_sha = Path("/Users/harishprabhu/Desktop/SUBJECTS/Sem_2/Speech-and-Signal-Processing/Lab3/unvoiced_sha.wav")
+voiced_za = Path("/Users/harishprabhu/Desktop/SUBJECTS/Sem_2/Speech-and-Signal-Processing/Lab3/voiced_za.wav") 
+background_noise = Path("/Users/harishprabhu/Desktop/SUBJECTS/Sem_2/Speech-and-Signal-Processing/Lab3/background_noise.wav") 
+
+# voiced fricatives
+voiced_car = Path("/Users/harishprabhu/Desktop/SUBJECTS/Sem_2/Speech-and-Signal-Processing/Lab3/voiced_car.wav")
+voiced_food = Path("/Users/harishprabhu/Desktop/SUBJECTS/Sem_2/Speech-and-Signal-Processing/Lab3/voiced_food.wav")
+voiced_a = Path("/Users/harishprabhu/Desktop/SUBJECTS/Sem_2/Speech-and-Signal-Processing/Lab3/voiced_a.wav")
+
 # Loading audiofile
-audiofile = Path("/Users/harishprabhu/Desktop/SUBJECTS/Sem_2/Speech-and-Signal-Processing/Lab3/unvoiced_sha.wav") 
+audiofile = unvoiced_sha
 fs, audiofile = wavfile.read(audiofile)
+#print(audiofile.shape) # the audio is mono channel and samples: 16000
+
+#audiofile = np.mean(audiofile, axis=1)  # Average left & right channels
 #print(audiofile.shape) # the audio is mono channel and samples: 16000
 
 numSamples = audiofile.shape[0]
@@ -26,19 +39,19 @@ duration = numSamples / fs # total duration
 
 # defining time vector
 t = np.arange(0, numSamples)
-t_ms = t * 1000 # time in milliseconds
+t_ms = (t / fs) * 1000 # time in milliseconds
 #print("t: ", t.shape)
 #print("T_ms: ", t_ms.shape)
 #print("NumSamples: ", numSamples)
 
 # plotting
-#plt.figure(figsize = (15, 8))
-#plt.plot(t_ms, audiofile)
+plt.figure(figsize = (15, 8))
+plt.plot(t_ms, audiofile)
 plt.title("Speech Signal Waveform")
 plt.xlabel("time (in milliseconds)")
 plt.ylabel("Signal Amplitude")
 plt.grid()
-#plt.show()
+plt.show()
 
 # ----------------- Task 2 -----------------
 """ Plot the waveform of a selected signal segment. 
@@ -97,18 +110,34 @@ positive_freqs_KHz = positive_freqs / 1000 # Hz -> KHz
 # plotting frequency spectrum
 plt.figure(figsize = (15, 8))
 plt.plot(positive_freqs_KHz, magnitude_spectrum)
-plt.title("Frequency Sprectrum for selected region of Speech Signal")
+plt.title("Frequency Spectrum for selected region of Speech Signal")
 plt.xlabel("Frequency (in KHz)")
 plt.ylabel("Magnitude")
 plt.grid()
 plt.show()
 
+# ----------------- Task 4 -----------------
+""" Compute and plot the cepstrum of the selected segment. 
+The x-axis should be in milliseconds. """
 
+# as fft is already calculated. Let's compute log of fft_values
+log_magnitude_spectrum = np.log(np.abs(fft_values) + 1e-10) # avoiding log(0) by adding a small number
 
+# applying Inverse FFT on log magnitude spectrum
+log_magnitude_spectrum_ifft = np.fft.ifft(log_magnitude_spectrum).real
 
+# quefrency values
+quefrency = np.arange(len(log_magnitude_spectrum)) / fs # in seconds
+quefrency_ms = quefrency * 1000 # in milli-seconds
 
-
-
+# plotting cepstrum for the selected region of signal
+plt.figure(figsize = (15, 8))
+plt.plot(quefrency_ms, log_magnitude_spectrum_ifft)
+plt.title("Cepstrum for selected region of Speech Signal")
+plt.xlabel("quefrency (in milliseconds)")
+plt.ylabel("Amplitude")
+plt.grid()
+plt.show()
 
 
 
